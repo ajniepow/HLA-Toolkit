@@ -33,7 +33,9 @@ DSA2.0:
 		A graph of the patient's antibody MFIs throughout their HLA Fusion history, filtered down to donor antigens. A corresponding html file with raw MFI values will open in your web broswer.
 
 	Note:
-		Donor typings in UNOS utilize a lookup system. The typing pulled from the API does not always correspond directly to the antigen, but rather contains a lookup code. The script handles this for you and converts them, but it depends on the lookups in '\\mehealth.org\data\Protected\Nordx HLA\R Scripts\UNOS_Lookups' being up-to-date. See the section on 'download_UNOS_lookups' for more detail.
+		Donor typings in UNOS utilize a lookup system. The typing pulled from the API does not always correspond directly to the antigen, but rather contains a lookup code. The script handles this for you and converts them, but it depends on the lookups in unos_lookup_path being up-to-date. See the section on 'download_UNOS_lookups' for more detail.
+
+		DB variables (server and DB name) for Fusion/Histotrac can be found in the settings or database menu for the respective application, or by contacting your database administrator. {SQL Server} driver should suit most cases and not need to be changed.
 
 
 
@@ -41,7 +43,7 @@ DSA2.0:
 
 download_UNOS_lookups:
 	Description:
-		Downloads HLA antigen lookup tables from UNOS. UNOS maintains these lookups, and they are what maps an 'Id' in a donor typing to an antigen/allele. These may be periodically updated and will therefore need to be re-downloaded. This script automates the download process and drops the files into: '\\mehealth.org\data\Protected\Nordx HLA\R Scripts\UNOS_Lookups'. Utilizes the UNOS API with an authroization flow that does NOT require user credentials, only API keys, which are built into the script.
+		Downloads HLA antigen lookup tables from UNOS. UNOS maintains these lookups, and they are what maps an 'Id' in a donor typing to an antigen/allele. These may be periodically updated and will therefore need to be re-downloaded. This script automates the download process and drops the files into: unos_lookup_path . Utilizes the UNOS API with an authroization flow that does NOT require user credentials, only API keys, which are built into the script.
 
 	R Packages needed: 
 		httr, openxlsx
@@ -50,7 +52,7 @@ download_UNOS_lookups:
 		Call the function with 'download_UNOS_lookups()'. No prompts are required.
 
 	Results:
-		Lookups for all loci should be populated/overwritten in: '\\mehealth.org\data\Protected\Nordx HLA\R Scripts\UNOS_Lookups'
+		Lookups for all loci should be populated/overwritten in: unos_lookup_path
 		
 
 
@@ -87,7 +89,7 @@ R Packages needed:
 		Call the function with 'load_eplet_registry()'. User will be prompted for confirmation of download (1 for yes, 2 for no).
 
 	Results:
-		eplets.xlsx file should be populated/overwritten in: '\\mehealth.org\data\Protected\Nordx HLA\R Scripts'
+		eplets.xlsx file should be populated/overwritten in: eplets_path
 
 
 
