@@ -1,0 +1,131 @@
+library(odbc)
+library(stringr)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(gt)
+library(factoextra)
+recipFusionCon <- dbConnect(odbc::odbc(), Driver   = "{SQL Server}", Server   = "[Fusion server name]", Database = "[Fusion DB name]", Port     = 1433)
+
+#used to define class I or II
+cat_id <- 'LS1A04'
+
+
+locus <- 'C'
+
+#'Y' or 'N' for using Explex data. Can ONLY use one or the other of standard or Explex for analysis. The two CANNOT be mixed since it will encounter beads that it cannot correlate
+explex <- 'uiklh'
+
+
+
+
+ifelse(explex == 'Y',  
+	(
+ 	query <- paste0("SELECT p.FirstName, p.LastName, p.PatientID, t.TrayIDName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, wd.Rxn, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where pd.BeadID NOT IN ('001','002') AND t.CatalogID LIKE '%EX%' AND t.CatalogID LIKE ", "'%", cat_id, "%'", " ORDER BY BeadID")
+	),
+		(
+		ifelse(explex == 'N',
+			(
+			query <- paste0("SELECT p.FirstName, p.LastName, p.PatientID, t.TrayIDName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, wd.Rxn, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where pd.BeadID NOT IN ('001','002') AND t.CatalogID NOT LIKE '%EX%' AND t.CatalogID LIKE ", "'%", cat_id, "%'", " ORDER BY BeadID")
+			),
+			(paste("invalid entry for Explex Y/N:",explex)))
+		)
+)
+
+
+SAB_data <- dbGetQuery(recipFusionCon, query)
+
+SAB_data <- as_tibble(SAB_data)
+(SAB_data <- SAB_data
+%>% mutate(Spec = gsub("-",'',gsub(",",'',Spec))))
+(SAB_data <- SAB_data
+%>% mutate(MolSpec= gsub("-",'',gsub(",",'',MolSpec))))
+
+(SAB_data <- SAB_data
+%>% mutate(Spec =  gsub("Bw6",'',gsub("Bw4",'',Spec))))
+
+(SAB_data <- SAB_data
+%>% mutate(SampleDate_Ship = as.Date(ShipmentDT, format = "%y-%m-%d"))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(SampleDate_Name = as.Date(format(
+as.Date(str_extract(SampleIDName, " \\d{1,2}-\\d{1,2}-\\d{2}"), format = "%m-%d-%Y"), "20%y-%m-%d"))
+))
+
+(SAB_data <- SAB_data
+%>% mutate(SampleDate = coalesce(SampleDate_Ship, SampleDate_Name))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(SampleID = paste(SampleIDName, TrayIDName))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(Rxn = as.integer(Rxn))
+)
+
+(SAB_data <- SAB_data
+%>% select("SampleID", "MolSpec", "NormalValue", "Rxn", "SampleIDName", "PatientID", "SampleDate")
+)
+
+(SAB_data <- SAB_data
+%>% filter(str_detect(MolSpec, paste0("^",locus)))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(avgMFI = ave(SAB_data$NormalValue, SAB_data$SampleID))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(minMFI = ave(SAB_data$NormalValue, SAB_data$SampleID, FUN = min))
+)
+
+(SAB_data <- SAB_data
+%>% mutate(maxMFI = ave(SAB_data$NormalValue, SAB_data$SampleID, FUN = max))
+)
+
+##use only peak sample for each patient
+(SAB_data <- SAB_data
+%>% group_by(PatientID) 
+%>% filter(avgMFI == max(avgMFI))
+)
+
+##filter out patients with no reactivity to any antigens in the chosen locus
+(SAB_data <- SAB_data
+%>% filter_out(maxMFI < 1000)
+)
+
+
+##filter out patients with reactivity to all antigens in the chosen locus
+##(SAB_data <- SAB_data
+##%>% filter_out(minMFI > 1000)
+##)
+
+SAB_data <- pivot_wider(
+  SAB_data,
+  id_cols = "PatientID",
+  id_expand = FALSE,
+  names_from = "MolSpec",
+  names_prefix = "",
+  names_sep = "_",
+  names_glue = NULL,
+  names_sort = FALSE,
+  names_vary = "fastest",
+  names_expand = FALSE,
+  names_repair = "check_unique",
+  values_from = "Rxn",
+  values_fill = NULL,
+  values_fn = mean,
+  unused_fn = NULL
+)
+
+SAB_data <- as.data.frame(SAB_data)
+
+rownames(SAB_data) = SAB_data$PatientID
+SAB_data$PatientID = NULL
+
+km_result <- kmeans(SAB_data, centers = 3, nstart = 1)
+
+fviz_cluster(km_result, data = SAB_data)
