@@ -1,6 +1,19 @@
 # HLA-Toolkit
 A small collection of analysis tools built for use in the HLA laboratory
 
+Note: all scripts contain variables that will depend on your specific laboratory's database setup, your desired file structure (for lookups), and API keys. All variables are defined at the beginning of each script. Replace these placeholder values with the necessary values for your setup. Keep the quotes but remove the brackets. For example:
+
+	#SQL DB name for Fusion:
+	fusion_db <- '[Fusion DB name]'
+
+Add in your Fusion database name:
+
+	#SQL DB name for Fusion:
+	fusion_db <- 'MyLabDB1234'
+
+
+Scripts in the Toolkit:
+
 DSA:
 
 	Description:
