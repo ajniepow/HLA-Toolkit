@@ -13,7 +13,7 @@ cat_id <- 'LS1A04NC29'
 locus <- 'A'
 
 
-query <- paste0("SELECT p.FirstName, p.LastName, p.PatientID, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where pd.BeadID NOT IN ('001','002') AND s.ShipmentDT LIKE '%2026%' AND t.CatalogID LIKE ", "'%", cat_id, "%'", " AND t.CatalogID NOT LIKE '%EX%' AND p.PatientID LIKE 'E%' ORDER BY BeadID")
+query <- paste0("SELECT p.FirstName, p.LastName, p.PatientID, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where pd.BeadID NOT IN ('001','002') AND t.CatalogID LIKE ", "'%", cat_id, "%'", " AND t.CatalogID NOT LIKE '%EX%' ORDER BY BeadID")
 SAB_data <- dbGetQuery(recipFusionCon, query)
 
 
