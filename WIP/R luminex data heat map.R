@@ -9,7 +9,7 @@ library(gt)
 library(corrplot)
 library(pheatmap)
 recipFusionCon <- dbConnect(odbc::odbc(), Driver   = "{SQL Server}", Server   = "[Fusion server name]", Database = "[Fusion DB name]", Port     = 1433)
-cat_id <- 'LS1A04NC29'
+cat_id <- 'LS1A04'
 locus <- 'A'
 
 
