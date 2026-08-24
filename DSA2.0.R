@@ -27,6 +27,12 @@ api_key <- '[API Key]'
 #UNOS API secret:
 api_secret <- '[API Secret]'
 
+#UNOS API center code:
+center_code <- '[x-center-code]'
+
+#UNOS API center type:
+center_type <- '[x-center-type]'
+
 #UNOS app redirect URI:
 #(most likely can leave as-is unless you have defined a different redirect uri in your UNOS API app)
 redirect_uri <- 'https://localhost'
@@ -186,8 +192,8 @@ url <- paste0('https://api.unos.org/deceased-donor/v1/donor-data/',DonorID,'/hla
 req <- request(url)
 req <- req %>%
 	req_headers(
-		'X-Center-Code'='MEMC',
-		'X-Center-Type'='TX1')
+		'X-Center-Code'=center_code,
+		'X-Center-Type'=center_type)
 req <- req_auth_bearer_token(req, token_res_raw$access_token)
 res <- req_perform(
   req,
@@ -255,17 +261,12 @@ return(Donor_type)
 ifelse(source == 'm', (Donor_type <- GetTypingManual()), (ifelse(source == 'h', (Donor_type <- GetTypingHT(DonorID)), ifelse(source == 'u', (Donor_type <- GetTypingUNOS(DonorID)), return(paste("invalid entry for donor typing source:",source)))))) 
 
 #establish Histotrac DB connection for recipient info
-recipHTCon <- dbConnect(odbc::odbc(), Driver   = "{SQL Server}", Server   = "histotracp", Database = "Histotrac2048", Port     = 1433)
+recipHTCon <- dbConnect(odbc::odbc(), Driver   = "{SQL Server}", Server   = ht_server, Database = ht_db, Port     = 1433)
 
 #define query for recipient info
-query <- paste0("Select p.LowRiskAntibodyTxt, p.ModerateRiskAntibodyTxt, p.UnacceptAntigenTxt, p.firstnm, p.lastnm from Patient p WHERE p.HospitalID  = ", "'", PID, "'")
-RecipFinalAssmt <- as_tibble(dbGetQuery(recipHTCon, query))
-(RecipFinalAssmt <- RecipFinalAssmt
-%>% mutate(Low_Risk = gsub("\r\n",";   ",gsub(" ",",",LowRiskAntibodyTxt)))
-%>% mutate(Moderate_Risk = gsub("\r\n",";   ",gsub(" ",",",ModerateRiskAntibodyTxt)))
-%>% mutate(Unacceptable = gsub("\r\n",";   ",gsub(" ",",",UnacceptAntigenTxt)))
-)
-recipName <- paste0(RecipFinalAssmt$lastnm,", ", RecipFinalAssmt$firstnm)
+query <- paste0("Select p.firstnm, p.lastnm from Patient p WHERE p.HospitalID  = ", "'", PID, "'")
+RecipData <- as_tibble(dbGetQuery(recipHTCon, query))
+recipName <- paste0(RecipData$lastnm,", ", RecipData$firstnm)
 
 #execute query for recipient info
 recipFusionCon <- dbConnect(odbc::odbc(), Driver   = sql_driver, Server   = fusion_server, Database = fusion_db, Port     = 1433)
