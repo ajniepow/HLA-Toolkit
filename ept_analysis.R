@@ -32,7 +32,7 @@ wb <- loadWorkbook(file_path)
 epts <- as_tibble(readWorkbook(wb))
 
 recipFusionCon <- dbConnect(odbc::odbc(), Driver   = sql_driver, Server   = fusion_server, Database = fusion_db, Port     = 1433)
-MRN <- readline(prompt = "Enter Patient MRN:")
+PID <- readline(prompt = "Enter Patient Patient ID:")
 Sample_Dt <- readline(prompt = "Sample Date to Analyze (YYYY-MM-DD):")
 CI_CII <- readline(prompt = "Analyze Class I or II? (Enter 'I' or 'II'):")
 cutoff <- readline(prompt = "Enter Desired Negative Cutoff (MFI) for Eplet Analysis:")
@@ -42,7 +42,7 @@ ifelse(CI_CII == 'I', (cat_id <- 'LS1A04'), ifelse(CI_CII == 'II', (cat_id <- 'L
 Sample_Dt <- as.Date(Sample_Dt, format = "%Y-%m-%d")
 cutoff <- as.numeric(cutoff)
 
-query <- paste0("SELECT p.FirstName, p.LastName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where p.PatientID =", "'", MRN, "'", " AND t.CatalogID LIKE ", "'%", cat_id, "%'", " AND pd.BeadID NOT IN ('001','002') ORDER BY BeadID")
+query <- paste0("SELECT p.FirstName, p.LastName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where p.PatientID =", "'", PID, "'", " AND t.CatalogID LIKE ", "'%", cat_id, "%'", " AND pd.BeadID NOT IN ('001','002') ORDER BY BeadID")
 SAB_data <- dbGetQuery(recipFusionCon, query)
 SAB_data <- as_tibble(SAB_data)
 (SAB_data <- SAB_data
@@ -121,7 +121,7 @@ groupname_col = "group"
 )
 %>% 
   tab_header(
-    title = gt::html(paste("Antibody eplet analysis for ", MRN, " based on reactivity on ", Sample_Dt, " sample. Used negative cutoff of ", cutoff, " MFI"))
+    title = gt::html(paste("Antibody eplet analysis for ", PID, " based on reactivity on ", Sample_Dt, " sample. Used negative cutoff of ", cutoff, " MFI"))
   )
 ))
 
