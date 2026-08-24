@@ -48,7 +48,7 @@ DSA2.0:
 	Note:
 		Donor typings in UNOS utilize a lookup system. The typing pulled from the API does not always correspond directly to the antigen, but rather contains a lookup code. The script handles this for you and converts them, but it depends on the lookups in unos_lookup_path being up-to-date. See the section on 'download_UNOS_lookups' for more detail.
 
-		DB variables (server and DB name) for Fusion/Histotrac can be found in the settings or database menu for the respective application, or by contacting your database administrator. {SQL Server} driver should suit most cases and not need to be changed.
+		DB variables (server and DB name) for Fusion/Histotrac can be found in the settings or database menu for the respective application, or by contacting your database administrator. {SQL Server} driver should suit most cases and not need to be changed. API variables can be found in the UNOS developer portal for your institution: https://developer.unos.org/
 
 
 
