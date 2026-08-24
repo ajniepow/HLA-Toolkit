@@ -55,7 +55,7 @@ library(openssl)
 
 
 #begin series of user prompts for donor/recipient information
-MRN <- readline(prompt = "Enter Recipient MRN:")
+PID <- readline(prompt = "Enter Recipient Patient ID:")
 DonorID <- readline(prompt = "Enter Donor ID:")
 source <- readline(prompt = "Choose donor typing source: \n Enter 'm' for manual, 'h' for HistoTrac, or 'u' for UNOS:")
 
@@ -258,7 +258,7 @@ ifelse(source == 'm', (Donor_type <- GetTypingManual()), (ifelse(source == 'h', 
 recipHTCon <- dbConnect(odbc::odbc(), Driver   = "{SQL Server}", Server   = "histotracp", Database = "Histotrac2048", Port     = 1433)
 
 #define query for recipient info
-query <- paste0("Select p.LowRiskAntibodyTxt, p.ModerateRiskAntibodyTxt, p.UnacceptAntigenTxt, p.firstnm, p.lastnm from Patient p WHERE p.HospitalID  = ", "'", MRN, "'")
+query <- paste0("Select p.LowRiskAntibodyTxt, p.ModerateRiskAntibodyTxt, p.UnacceptAntigenTxt, p.firstnm, p.lastnm from Patient p WHERE p.HospitalID  = ", "'", PID, "'")
 RecipFinalAssmt <- as_tibble(dbGetQuery(recipHTCon, query))
 (RecipFinalAssmt <- RecipFinalAssmt
 %>% mutate(Low_Risk = gsub("\r\n",";   ",gsub(" ",",",LowRiskAntibodyTxt)))
@@ -269,7 +269,7 @@ recipName <- paste0(RecipFinalAssmt$lastnm,", ", RecipFinalAssmt$firstnm)
 
 #execute query for recipient info
 recipFusionCon <- dbConnect(odbc::odbc(), Driver   = sql_driver, Server   = fusion_server, Database = fusion_db, Port     = 1433)
-query <- paste0("SELECT p.FirstName, p.LastName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where p.PatientID =", "'", MRN, "'", " AND pd.BeadID NOT IN ('001','002') ORDER BY BeadID")
+query <- paste0("SELECT p.FirstName, p.LastName, s.SampleIDName, s.ShipmentDT, pd.BeadID, wd.NormalValue, CAST(pd.Specificity AS VARCHAR(50)) AS MolSpec, CAST(pd.SpecAbbr AS VARCHAR(50)) AS Spec FROM PATIENT p INNER JOIN SAMPLE s on p.PatientID = s.PatientID INNER JOIN WELL w on s.SampleID = w.SampleID INNER JOIN TRAY t on w.TrayID = t.TrayID INNER JOIN PRODUCT_DETAIL pd on t.CatalogID = pd.CatalogID INNER JOIN WELL_DETAIL wd on pd.BeadID = wd.BeadID and w.WellID = wd.WellID where p.PatientID =", "'", PID, "'", " AND pd.BeadID NOT IN ('001','002') ORDER BY BeadID")
 SAB_data <- dbGetQuery(recipFusionCon, query)
 
 #format Fusion data
