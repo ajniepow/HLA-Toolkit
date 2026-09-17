@@ -1,6 +1,8 @@
 # HLA-Toolkit
 A small collection of analysis tools built for use in the HLA laboratory
 
+This project is licensed under the terms of the MIT license.
+
 Note: all scripts contain variables that will depend on your specific laboratory's database setup, your desired file structure (for lookups), and API keys. All variables are defined at the beginning of each script. Replace these placeholder values with the necessary values for your setup. Keep the quotes but remove the brackets. For example:
 
 	#SQL DB name for Fusion:
