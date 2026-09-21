@@ -16,23 +16,6 @@ Add in your Fusion database name:
 
 Scripts in the Toolkit:
 
-DSA:
-
-	Description:
-		An interactive tool for assessing DSA using a patient's fusion data against a manually entered donor typing or a donor typing from Histotrac.
-
-	R Packages needed: 
-		odbc, immunogenetr, stringr, tibble, dplyr, ggplot2, tidyr, gt
-
-	Usage: 
-		Call the function with 'DSA()'. The script will prompt you for: patient MRN, UNOS donor ID, manual or auto typing. If manual is selected, it will prompt you for 2 HLA types at each locus. If auto is selected, the donor must be in Histotrac with typing entered, and the UNOS ID field populated, or the script will not find the typing.
-
-	Results:
-		A graph of the patient's antibody MFIs throughout their HLA Fusion history, filtered down to donor antigens. A corresponding html file with raw MFI values will open in your web broswer.
-
-
-
-
 
 DSA2.0:
 	Description:
