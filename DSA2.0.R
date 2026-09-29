@@ -5,6 +5,11 @@ DSA2 <- function(){
 
 #Below are API keys, server/DB names, etc that may be variable. Change as-needed.
 
+#----------------------------------------------------------------------
+#Set UNOS API Key as env var with: Sys.setenv(UNOS_API_KEY = "[API Key]")
+#Set UNOS API Secret as env var with: Sys.setenv(UNOS_API_SECRET = "[API Secret]")
+#----------------------------------------------------------------------
+
 #SQL Server Driver:
 #(leave this one as-is unless you are experiencing issues, {SQL Server} driver will work in most cases)
 sql_driver <- '{SQL Server}'
@@ -20,12 +25,6 @@ ht_server <- '[HistoTrac server name]'
 
 #SQL DB name for HistoTrac:
 ht_db <- '[HistoTrac DB name]'
-
-#UNOS API key:
-api_key <- '[API Key]'
-
-#UNOS API secret:
-api_secret <- '[API Secret]'
 
 #UNOS API center code:
 center_code <- '[x-center-code]'
@@ -96,7 +95,7 @@ GetTypingHT <- function(DonorID){
 donorHTCon <- dbConnect(odbc::odbc(), Driver   = sql_driver, Server   = ht_server, Database = ht_db, Port     = 1433)
 
 	#define SQL query
-query <- paste0("Select p.lastnm, p.firstnm, p.hospitalid, p.ssnbr as SSN, p.abocd, 
+query <- paste0("Select p.lastnm, p.firstnm, p.hospitalid,
 isnull (hlaa1.aequivalentcd,p.a1cd) as A1,  isnull(hlaa2.aequivalentcd,p.a2cd) as A2, isnull(hlab1.bequivalentcd,p.b1cd) as B1, isnull(hlab2.bequivalentcd,p.b2cd) as B2, 
 case when p.mbw1cd = '' then p.bw1cd else p.mbw1cd end as Bw1, 
 case when p.mbw2cd = '' then p.bw2cd else p.mbw2cd end as Bw2, isnull(hlac1.cequivalentcd,p.cw1cd) as Cw1, isnull(hlac2.cequivalentcd,p.cw2cd) as Cw2,  isnull(hladrb11.drb1equivalentcd,p.dr1cd) as DR1, isnull(hladrb12.drb1equivalentcd,p.dr2cd) as DR2, isnull(hladqb11.dqb1equivalentcd,p.dq1cd) as DQ1, isnull(hladqb12.dqb1equivalentcd,p.dq2cd) as DQ2, isnull(hladrb31.drb3equivalentcd,'') as DRB31, isnull(hladrb32.drb3equivalentcd,'') as DRB32, isnull(hladrb41.drb4equivalentcd,'') as DRB41, isnull(hladrb42.drb4equivalentcd,'') as DRB42, isnull(hladrb51.drb5equivalentcd,'') as DRB51, isnull(hladrb52.drb5equivalentcd,'') as DRB52, 
@@ -182,7 +181,7 @@ token_req <- token_req %>%
 		req_body_raw(params, type = 'application/x-www-form-urlencoded')
 token_res <- req_perform(	token_req,
 			path = NULL,
-  			verbosity = 3,
+  			verbosity = 0,
   			mock = NULL
 			)
 token_res_raw <- resp_body_json(token_res)
@@ -198,7 +197,7 @@ req <- req_auth_bearer_token(req, token_res_raw$access_token)
 res <- req_perform(
   req,
   path = NULL,
-  verbosity = 2,
+  verbosity = 0,
   mock = getOption("httr2_mock", NULL)
 )
 resj <- resp_body_json(res)

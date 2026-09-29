@@ -13,6 +13,8 @@ Add in your Fusion database name:
 	#SQL DB name for Fusion:
 	fusion_db <- 'MyLabDB1234'
 
+API keys/secrets should be set as environment variables using: Sys.setenv(api_key = "[API Key]")
+
 
 Scripts in the Toolkit:
 

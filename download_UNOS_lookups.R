@@ -4,11 +4,10 @@ download_UNOS_lookups <- function(){
 
 #Below are API keys and filepaths that may be variable. Change as-needed.
 
-#UNOS API key
-api_key <- '[API Key]'
-
-#UNOS API secret:
-api_secret <- '[API Secret]'
+#---------------------------------------------------------------------------------
+#Set UNOS API Key as env var with: Sys.setenv(api_key = "[API Key]")
+#Set UNOS API Secret as env var with: Sys.setenv(api_secret = "[API Secret]")
+#---------------------------------------------------------------------------------
 
 #Filepath for UNOS antigen lookups
 unos_lookup_path <- '[desired file path for lookup tables. set the same path in DSA script]'
@@ -22,8 +21,8 @@ library(httr)
 library(openxlsx)
 
 app <- oauth_app("HlaLookups",
-	key = api_key, 
-	secret = api_secret, 
+	key = Sys.getenv("api_key"), 
+	secret = Sys.getenv("api_secret"), 
 	redirect_uri = oauth_callback())
 
 endpoint <- oauth_endpoint(request = NULL, authorize = "https://api.unos.org/login/v1/oauth2/authorize", access = "https://api.unos.org/login/v1/oauth2/token", base_url = NULL)
@@ -62,7 +61,7 @@ req <- req_auth_bearer_token(req, token)
 lookup <- req_perform(
   req,
   path = NULL,
-  verbosity = 2,
+  verbosity = 0,
   mock = getOption("httr2_mock", NULL)
 )
 
