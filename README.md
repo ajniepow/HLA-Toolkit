@@ -24,10 +24,10 @@ DSA2.0:
 		An interactive tool for assessing DSA using a patient's fusion data against a manually entered donor typing, donor typing from Histotrac, or a DD typing fetched through the UNOS API.
 
 	R Packages needed: 
-		odbc, immunogenetr, stringr, tibble, dplyr, ggplot2, tidyr, gt, httr2, openxlsx, openssl
+		odbc, immunogenetr, stringr, tibble, dplyr, ggplot2, tidyr, gt, httr2, openxlsx, openssl, glue
 
 	Usage: 
-		Call the function with 'DSA2()'. The script will prompt you for: patient MRN, UNOS donor ID, manual (m), HistoTrac (h), or UNOS (u) typing. If manual is selected, it will prompt you for 2 HLA types at each locus, can accept blanks (for homozygous, null, no allele at drb345, etc.). If auto is selected, the donor must be in Histotrac with typing entered, and the UNOS ID field populated, or the script will not find the typing. If UNOS is selected, a browser window will open with a UNOS login page for user authorization of the API. Enter your credentials and complete 2FA. A 'page cannot be displayed' page will open, but this is actually a succesful login. Copy the URL from this page and paste into the prompt in R.
+		Call the function with 'DSA2()'. The script will prompt you for: patient MRN, UNOS donor ID, manual (m), HistoTrac (h), or UNOS (u) typing. If manual is selected, it will prompt you for 2 HLA types at each locus, can accept blanks (for homozygous, null, no allele at drb345, etc.). DPB1, DQA1, and DPA1 alleles should be typed with leading zeros at single-field resolution. For example, for DQA1*02:01 enter "02".  If auto is selected, the donor must be in Histotrac with typing entered, and the UNOS ID field populated, or the script will not find the typing. If UNOS is selected, a browser window will open with a UNOS login page for user authorization of the API. Enter your credentials and complete 2FA. A 'page cannot be displayed' page will open, but this is actually a succesful login. Copy the URL from this page and paste into the prompt in R.
 
 	Results:
 		A graph of the patient's antibody MFIs throughout their HLA Fusion history, filtered down to donor antigens. A corresponding html file with raw MFI values will open in your web broswer.

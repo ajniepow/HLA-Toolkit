@@ -15,7 +15,7 @@ cat_id <- 'LS1A04'
 locus <- 'C'
 
 #'Y' or 'N' for using Explex data. Can ONLY use one or the other of standard or Explex for analysis. The two CANNOT be mixed since it will encounter beads that it cannot correlate
-explex <- 'uiklh'
+explex <- 'Y0'
 
 
 
